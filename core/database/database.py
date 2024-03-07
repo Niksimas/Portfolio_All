@@ -144,7 +144,7 @@ def save_new_review(data: dict) -> int:
     with sqlite3.connect(f"{home}/database/main_data.db") as connect:
         cursor = connect.cursor()
         cursor.execute('INSERT INTO main.review (name_project, text, name) VALUES(?, ?, ?) RETURNING id;',
-                       [data["name_project"], data["text"], data["name"]])
+                       [data["name_project"], data["text"], data["name_user"]])
         data = cursor.fetchall()
         return data[0][0]
 

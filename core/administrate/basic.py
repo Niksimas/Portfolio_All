@@ -304,12 +304,69 @@ async def check_data_btn(call: CallbackQuery, state: FSMContext):
                                  f"Ссылка: {data_mess['photo_id']}\n\n"
                                  "Желаете изменить его?",
                                  reply_markup=kbi.confirmation(txt_y="Ссылку", txt_n="Текст", cd_y="link", cd_n="text"))
-    await state.set_state(EditContact.CheckOldMess)
+    await state.set_state(EditContactBtn.CheckOldMess)
     await state.update_data({"link": data_mess['photo_id'], "text": data_mess['text']})
 
 
 @router.callback_query(F.data == "no", EditContactBtn.SetMessage)
-@router.callback_query(F.data == "link" or F.data == "text", EditContactBtn.CheckOldMess)
+@router.callback_query(F.data.in_(["link", "text"]), EditContactBtn.CheckOldMess)
+async def set_new_data_btn(call: CallbackQuery, state: FSMContext):
+    msg = await call.message.edit_text(f"Отправьте новые данные", reply_markup=kbi.cancel_admin())
+    await state.set_state(EditContactBtn.SetMessage)
+    await state.update_data({"del": msg.message_id, "type": call.data})
+
+
+@router.message(EditContactBtn.SetMessage)
+async def check_new_data_btn(mess: Message, state: FSMContext, bot: Bot):
+    try:
+        del_kb = (await state.get_data())["del"]
+        await bot.edit_message_reply_markup(mess.chat.id, del_kb, reply_markup=None)
+    except (KeyError, TelegramBadRequest):
+        pass
+    data = await state.get_data()
+    data[data['type']] = mess.text
+    await mess.answer(f"Новые данные для кнопки:\n\n"
+                      f"Текст: {data['text']}\n"
+                      f"Ссылка: {data['link']}\n"
+                      f"Сохраняем?",
+                      reply_markup=kbi.confirmation())
+    await state.update_data(data)
+
+
+@router.callback_query(F.data == "yes", EditContactBtn.SetMessage)
+async def save_new_data_btn(call: CallbackQuery, state: FSMContext):
+    try:
+        del_mess = (await state.get_data())["del"]
+        await bot.delete_message(call.from_user.id, del_mess)
+    except (KeyError, TelegramBadRequest):
+        pass
+    await call.message.delete()
+    data = await state.get_data()
+    database.set_mess("contact", data["text"], data["link"])
+    await call.message.answer("Новое сообщение сохранено!", reply_markup=kbi.admin_menu(call.from_user.id))
+    await state.clear()
+
+
+# ###################################### Изменить кнопку проектов ################################################ #
+class EditCProjectBtn(StatesGroup):
+    CheckOldMess = State()
+    SetMessage = State()
+
+
+@router.callback_query(F.data == "edit_project_btn")
+async def check_data_btn(call: CallbackQuery, state: FSMContext):
+    data_mess = database.get_mess('site')
+    await call.message.edit_text(f"Сейчас кнопка настроена так:\n\n"
+                                 f"Текст: {data_mess['text']}\n"
+                                 f"Ссылка: {data_mess['photo_id']}\n\n"
+                                 "Желаете изменить его?",
+                                 reply_markup=kbi.confirmation(txt_y="Ссылку", txt_n="Текст", cd_y="link", cd_n="text"))
+    await state.set_state(EditContactBtn.CheckOldMess)
+    await state.update_data({"link": data_mess['photo_id'], "text": data_mess['text']})
+
+
+@router.callback_query(F.data == "no", EditContactBtn.SetMessage)
+@router.callback_query(F.data.in_(["link", "text"]), EditContactBtn.CheckOldMess)
 async def set_new_data_btn(call: CallbackQuery, state: FSMContext):
     msg = await call.message.edit_text(f"Отправьте новые данные", reply_markup=kbi.cancel_admin())
     await state.set_state(EditContactBtn.SetMessage)
