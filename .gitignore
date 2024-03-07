@@ -1,0 +1,10 @@
+venv
+.idea
+.env
+core/cred.json
+core/chat_id.txt
+core/database/main_data.db
+core/administrate/code.txt
+core/photo/
+core/statistics/data
+logging
