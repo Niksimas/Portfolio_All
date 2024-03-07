@@ -1,6 +1,7 @@
 from .calldata import Project, Reviews
 
 from core.settings import settings
+from core.database import database
 from core.database.database import get_all_id_admin
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -8,10 +9,9 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 def start(user_id) -> InlineKeyboardMarkup:
+    mess_data =database.get_mess("project")
     buttons = [
-        [
-            InlineKeyboardButton(text="🗂 Кейсы", callback_data="project")
-         ],
+        [InlineKeyboardButton(text=mess_data['text'], callback_data="project")],
         [
             InlineKeyboardButton(text="💬 Посмотреть отзывы", callback_data=f"see_review"),
             InlineKeyboardButton(text="💭 Оставить отзыв", callback_data=f"add_review")
@@ -127,12 +127,17 @@ def verif_no():
 
 def admin_menu(user_id: int) -> InlineKeyboardMarkup:
     buttons = [
-        [InlineKeyboardButton(text="👥 Пользователи", callback_data="users")],
+        [
+            InlineKeyboardButton(text="👥 Пользователи", callback_data="users"),
+            InlineKeyboardButton(text="📊 Просмотр статистики", callback_data="view_statistics")
+        ],
         [InlineKeyboardButton(text="💬 Изменить стартовое сообщение", callback_data="edit_start_mess")],
         [InlineKeyboardButton(text="🔊 Рассылка сообщений по пользователям", callback_data="notif")],
         [InlineKeyboardButton(text="📱 Изменить контакты", callback_data="edit_contact_mess")],
-        [InlineKeyboardButton(text="🔗 Изменить кнопку перехода на сайт", callback_data="edit_contact_btn")],
-        [InlineKeyboardButton(text="📊 Просмотр статистики", callback_data="view_statistics")],
+        [
+            InlineKeyboardButton(text="🔗 Изменить кнопку сайта", callback_data="edit_contact_btn"),
+            InlineKeyboardButton(text="📂 Изменить кнопку кейсов", callback_data="edit_project_btn")
+        ],
         [InlineKeyboardButton(text="🔁 Сменить чат администраторов", callback_data="new_chat")],
         [
             InlineKeyboardButton(text="+📂 Добавить проект", callback_data="add_project"),

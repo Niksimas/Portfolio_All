@@ -302,7 +302,7 @@ async def check_data_btn(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text(f"Сейчас кнопка настроена так:\n\n"
                                  f"Текст: {data_mess['text']}\n"
                                  f"Ссылка: {data_mess['photo_id']}\n\n"
-                                 "Желаете изменить его?",
+                                 "Что поменяем?",
                                  reply_markup=kbi.confirmation(txt_y="Ссылку", txt_n="Текст", cd_y="link", cd_n="text"))
     await state.set_state(EditContactBtn.CheckOldMess)
     await state.update_data({"link": data_mess['photo_id'], "text": data_mess['text']})
@@ -348,32 +348,31 @@ async def save_new_data_btn(call: CallbackQuery, state: FSMContext):
 
 
 # ###################################### Изменить кнопку проектов ################################################ #
-class EditCProjectBtn(StatesGroup):
+class EditProjectBtn(StatesGroup):
     CheckOldMess = State()
     SetMessage = State()
 
 
 @router.callback_query(F.data == "edit_project_btn")
 async def check_data_btn(call: CallbackQuery, state: FSMContext):
-    data_mess = database.get_mess('site')
+    data_mess = database.get_mess('project')
     await call.message.edit_text(f"Сейчас кнопка настроена так:\n\n"
-                                 f"Текст: {data_mess['text']}\n"
-                                 f"Ссылка: {data_mess['photo_id']}\n\n"
+                                 f"Текст: {data_mess['text']}\n\n"
                                  "Желаете изменить его?",
-                                 reply_markup=kbi.confirmation(txt_y="Ссылку", txt_n="Текст", cd_y="link", cd_n="text"))
-    await state.set_state(EditContactBtn.CheckOldMess)
-    await state.update_data({"link": data_mess['photo_id'], "text": data_mess['text']})
+                                 reply_markup=kbi.confirmation())
+    await state.set_state(EditProjectBtn.CheckOldMess)
+    await state.update_data({"text": data_mess['text']})
 
 
-@router.callback_query(F.data == "no", EditContactBtn.SetMessage)
-@router.callback_query(F.data.in_(["link", "text"]), EditContactBtn.CheckOldMess)
+@router.callback_query(F.data == "no", EditProjectBtn.SetMessage)
+@router.callback_query(F.data.in_(["yes"]), EditProjectBtn.CheckOldMess)
 async def set_new_data_btn(call: CallbackQuery, state: FSMContext):
     msg = await call.message.edit_text(f"Отправьте новые данные", reply_markup=kbi.cancel_admin())
-    await state.set_state(EditContactBtn.SetMessage)
-    await state.update_data({"del": msg.message_id, "type": call.data})
+    await state.set_state(EditProjectBtn.SetMessage)
+    await state.update_data({"del": msg.message_id})
 
 
-@router.message(EditContactBtn.SetMessage)
+@router.message(EditProjectBtn.SetMessage)
 async def check_new_data_btn(mess: Message, state: FSMContext, bot: Bot):
     try:
         del_kb = (await state.get_data())["del"]
@@ -381,16 +380,15 @@ async def check_new_data_btn(mess: Message, state: FSMContext, bot: Bot):
     except (KeyError, TelegramBadRequest):
         pass
     data = await state.get_data()
-    data[data['type']] = mess.text
+    data["text"] = mess.text
     await mess.answer(f"Новые данные для кнопки:\n\n"
                       f"Текст: {data['text']}\n"
-                      f"Ссылка: {data['link']}\n"
                       f"Сохраняем?",
                       reply_markup=kbi.confirmation())
     await state.update_data(data)
 
 
-@router.callback_query(F.data == "yes", EditContactBtn.SetMessage)
+@router.callback_query(F.data == "yes", EditProjectBtn.SetMessage)
 async def save_new_data_btn(call: CallbackQuery, state: FSMContext):
     try:
         del_mess = (await state.get_data())["del"]
@@ -399,6 +397,6 @@ async def save_new_data_btn(call: CallbackQuery, state: FSMContext):
         pass
     await call.message.delete()
     data = await state.get_data()
-    database.set_mess("contact", data["text"], data["link"])
+    database.set_mess("project", data["text"])
     await call.message.answer("Новое сообщение сохранено!", reply_markup=kbi.admin_menu(call.from_user.id))
     await state.clear()
