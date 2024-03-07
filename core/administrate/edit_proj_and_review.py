@@ -28,8 +28,7 @@ async def check_deleted_project(call: CallbackQuery, callback_data: Project):
                                                                                      id_proj=callback_data.id_proj,
                                                                                      num_proj=callback_data.num_proj,
                                                                                      value=-1),
-                                                                    cancel_data=Project(types=callback_data.types,
-                                                                                        action="edit",
+                                                                    cancel_data=Project(action="edit",
                                                                                         num_proj=callback_data.num_proj,
                                                                                         value=0)))
     except TelegramBadRequest:
@@ -38,8 +37,7 @@ async def check_deleted_project(call: CallbackQuery, callback_data: Project):
                                      reply_markup=kbi.del_record(
                                             yes_data=Project(action="yes_del", id_proj=callback_data.id_proj,
                                                              num_proj=callback_data.num_proj, value=-1),
-                                            cancel_data=Project(types=callback_data.types, action="edit",
-                                                                num_proj=callback_data.num_proj, value=0)))
+                                            cancel_data=Project(action="edit", num_proj=callback_data.num_proj, value=0)))
 
 
 @subrouter.callback_query(Project.filter(F.action == "yes_del"))
@@ -84,7 +82,7 @@ async def modify_photo_project(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     await call.message.delete()
     msg = await call.message.answer("Отправьте новую фотографию: ",
-                                    reply_markup=kbi.cancel_record(Project(types=data["type"], action="edit",
+                                    reply_markup=kbi.cancel_record(Project(action="edit",
                                                                            id_proj=data["id_proj"],
                                                                            num_proj=data["num_proj"], value=0)))
     await state.set_state(EditProject.SetPhoto)
@@ -104,13 +102,13 @@ async def warning_media_group(mess: Message, state: FSMContext, bot: Bot):
         if b != mess.media_group_id:
             await state.update_data({"group_id": mess.media_group_id})
             msg = await mess.answer("Можно прикрепить только одну фотографию",
-                              reply_markup=kbi.cancel_record(Project(types=data["type"], action="edit", id_proj=data["id_proj"],
+                              reply_markup=kbi.cancel_record(Project(action="edit", id_proj=data["id_proj"],
                                                                      num_proj=data["num_proj"], value=0)))
             await state.update_data({"del": msg.message_id})
     except KeyError:
         await state.update_data({"group_id": mess.media_group_id})
         msg = await mess.answer("Можно прикрепить только одну фотографию",
-                          reply_markup=kbi.cancel_record(Project(types=data["type"], action="edit", id_proj=data["id_proj"],
+                          reply_markup=kbi.cancel_record(Project(action="edit", id_proj=data["id_proj"],
                                                                  num_proj=data["num_proj"], value=0)))
         await state.update_data({"del": msg.message_id})
 
@@ -132,7 +130,7 @@ async def save_photo_project(mess: Message, state: FSMContext, bot: Bot):
     msg = await mess.answer_photo(photo=photo,
                                   caption=f"Название проекта: {data_proj['name_project']}\n"
                                           f"Описание: \n{data_proj['description']}\n\nСохраняем?",
-                                  reply_markup=kbi.confirmation_project(data['type'], data['id_proj']))
+                                  reply_markup=kbi.confirmation_project(data['id_proj'], data['num_proj']))
     await state.update_data({"name_photo": msg.photo[-1].file_id, "name_project": data_proj['name_project'], "description": data_proj['description']})
 
 
@@ -151,7 +149,7 @@ async def set_new_data_project(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     await call.message.delete()
     msg = await call.message.answer("Отправьте новые данные: ",
-                              reply_markup=kbi.cancel_record(Project(types=data["type"], action="edit", id_proj=data["id_proj"],
+                              reply_markup=kbi.cancel_record(Project(action="edit", id_proj=data["id_proj"],
                                                              num_proj=data["num_proj"], value=0)))
     await state.set_state(EditProject.SetText)
     await state.update_data({"del": msg.message_id, "type_mess": call.data})
@@ -170,14 +168,14 @@ async def check_new_data_project(mess: Message, state: FSMContext, bot: Bot):
     if data_proj["name_photo"] in [None, ""]:
         msg = await mess.answer(f"Название проекта: {data_proj['name_project']}\n"
                                 f"Описание: \n{data_proj['description']}\n\nСохраняем?",
-                                reply_markup=kbi.confirmation_project(data['type'], data['id_proj']))
+                                reply_markup=kbi.confirmation_project(data['id_proj'], data['num_proj']))
     else:
         msg = await mess.answer_photo(photo=data_proj['name_photo'],
                                       caption=f"Название проекта: {data_proj['name_project']}\n"
                                               f"Описание: \n{data_proj['description']}\n\nСохраняем?",
-                                      reply_markup=kbi.confirmation_project(data['type'], data['id_proj']))
-    await state.update_data({"name_photo": msg.photo[-1].file_id, "name_project": data_proj['name_project'],
-                             "description": data_proj['description']})
+                                      reply_markup=kbi.confirmation_project(data['id_proj'], data['num_proj']))
+        await state.update_data({"name_photo": msg.photo[-1].file_id, "name_project": data_proj['name_project'],
+                                 "description": data_proj['description']})
 
 
 # ############################################### Удаление отзыва ################################################## #

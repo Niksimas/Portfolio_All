@@ -18,7 +18,7 @@ class Form(StatesGroup):
     CheckMessage = State()
 
 
-@subrouter.message(Form.FIO, F.text == "Отмена")
+@subrouter.message(Form.Phone, F.text == "Отмена")
 async def cancel_form_user(mess: Message, state: FSMContext):
     await mess.answer("Заполнение формы отменено!", reply_markup=ReplyKeyboardRemove())
     await start_mess(mess, state)

@@ -76,7 +76,7 @@ async def viewing_projects_next_back(call: CallbackQuery, callback_data: Project
                                                     reply_markup=kb.menu_projects(num_record, call.from_user.id, list_id[num_record-1],
                                                                                   back_btn, next_btn))
                     await call.message.delete()
-            set_statistic(f"view_project_{callback_data.types}", call.from_user.id)
+            set_statistic("view_project", call.from_user.id)
         except IndexError:
             await call.answer("Кейсов больше нет!")
 
