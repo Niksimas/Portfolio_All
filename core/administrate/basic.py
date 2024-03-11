@@ -37,7 +37,7 @@ async def manual_new_chat_admin(call: CallbackQuery, state: FSMContext):
                                  "3. Добавить туда вашего бота\n"
                                  "4. Выдать боту права администратора\n"
                                  "5. Скопировать и отправить команду в новый чат /new_chat_admins",
-                                 reply_markup=kbi.admin_menu(call.from_user.id))
+                                 reply_markup=kbi.cancel_admin())
     await state.clear()
 
 
