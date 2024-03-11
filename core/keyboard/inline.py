@@ -128,11 +128,11 @@ def verif_no():
 def admin_menu(user_id: int) -> InlineKeyboardMarkup:
     buttons = [
         [
-            InlineKeyboardButton(text="👥 Пользователи", callback_data="users"),
-            InlineKeyboardButton(text="📊 Статистики", callback_data="view_statistics")
+            InlineKeyboardButton(text="🔒👥 Пользователи", callback_data="users"),
+            InlineKeyboardButton(text="🔒📊 Статистика", callback_data="view_statistics")
         ],
         [InlineKeyboardButton(text="💬 Изменить стартовое сообщение", callback_data="edit_start_mess")],
-        [InlineKeyboardButton(text="🔊 Рассылка сообщений по пользователям", callback_data="notif")],
+        [InlineKeyboardButton(text="🔒🔊 Рассылка сообщений по пользователям", callback_data="notif")],
         [InlineKeyboardButton(text="📱 Изменить контакты", callback_data="edit_contact_mess")],
         [InlineKeyboardButton(text="🔗 Изменить кнопку сайта", callback_data="edit_contact_btn")],
         [InlineKeyboardButton(text="📂 Изменить кнопку кейсов", callback_data="edit_project_btn")],
