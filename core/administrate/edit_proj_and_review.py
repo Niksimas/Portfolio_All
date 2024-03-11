@@ -197,11 +197,11 @@ async def del_review(call: CallbackQuery, callback_data: Reviews, state: FSMCont
     list_id = database.get_reviews_all_id()
     database.deleted_review(list_id[callback_data.review_num-1])
     if callback_data.review_num <= 1:
-        await call.answer("Последний кейс удален!")
+        await call.answer("Последний отзыв удален!")
         await hand_base.start_call(call, state)
     else:
         await call.answer("Кейс удален!")
-        await viewing_reviews_next_back(call, callback_data)
+        await viewing_reviews_next_back(call, callback_data, state)
 
 
 # ############################################### Изменение отзыва ################################################## #
