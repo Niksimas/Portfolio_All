@@ -62,7 +62,7 @@ async def check_review(mess: Message, state: FSMContext, bot: Bot):
 @router.callback_query(CreatReview.Check, F.data == "yes")
 async def send_verification(call: CallbackQuery, state: FSMContext, bot: Bot):
     data = await state.get_data()
-    data["name"] = f"{call.from_user.first_name}"
+    data["name_user"] = f"{call.from_user.first_name}"
     review_id = database.save_new_review(data)
     await call.message.edit_text("Отзыв отправлен на модерацию! Благодарим, что уделили нам время!",
                                  reply_markup=kb.start(call.from_user.id))

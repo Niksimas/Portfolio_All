@@ -5,7 +5,7 @@ from core.database import database
 from core.database.database import get_all_id_admin
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
 
 def start(user_id) -> InlineKeyboardMarkup:
@@ -27,7 +27,7 @@ def start(user_id) -> InlineKeyboardMarkup:
 
 def site(text: str, link: str) -> InlineKeyboardMarkup:
     buttons = [
-        [InlineKeyboardButton(text=text, url=link)],
+        [InlineKeyboardButton(text=text, web_app=WebAppInfo(url=link))],
         [InlineKeyboardButton(text="🏠 В меню", callback_data="start")]
                ]
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -129,15 +129,13 @@ def admin_menu(user_id: int) -> InlineKeyboardMarkup:
     buttons = [
         [
             InlineKeyboardButton(text="👥 Пользователи", callback_data="users"),
-            InlineKeyboardButton(text="📊 Просмотр статистики", callback_data="view_statistics")
+            InlineKeyboardButton(text="📊 Статистики", callback_data="view_statistics")
         ],
         [InlineKeyboardButton(text="💬 Изменить стартовое сообщение", callback_data="edit_start_mess")],
         [InlineKeyboardButton(text="🔊 Рассылка сообщений по пользователям", callback_data="notif")],
         [InlineKeyboardButton(text="📱 Изменить контакты", callback_data="edit_contact_mess")],
-        [
-            InlineKeyboardButton(text="🔗 Изменить кнопку сайта", callback_data="edit_contact_btn"),
-            InlineKeyboardButton(text="📂 Изменить кнопку кейсов", callback_data="edit_project_btn")
-        ],
+        [InlineKeyboardButton(text="🔗 Изменить кнопку сайта", callback_data="edit_contact_btn")],
+        [InlineKeyboardButton(text="📂 Изменить кнопку кейсов", callback_data="edit_project_btn")],
         [InlineKeyboardButton(text="🔁 Сменить чат администраторов", callback_data="new_chat")],
         [
             InlineKeyboardButton(text="+📂 Добавить проект", callback_data="add_project"),
@@ -209,7 +207,7 @@ def blocking():
 def finish_form():
     buttons = [
         [InlineKeyboardButton(text="Наш сайт", url="https://nil-agency.ru/")],
-        [InlineKeyboardButton(text="↩️ Вернуться", callback_data="admin")]
+        [InlineKeyboardButton(text="↩️ Вернуться", callback_data="start")]
                ]
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard

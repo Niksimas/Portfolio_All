@@ -51,7 +51,7 @@ async def del_project(call: CallbackQuery, callback_data: Project, state: FSMCon
         await hand_base.start_call(call, state)
     else:
         await call.answer("Кейс удален!")
-        await viewing_projects_next_back(call, callback_data)
+        await viewing_projects_next_back(call, callback_data, state)
 
 
 # ############################################### Изменение проекта ################################################## #

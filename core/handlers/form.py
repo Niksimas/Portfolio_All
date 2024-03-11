@@ -1,3 +1,5 @@
+import re
+
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.filters.state import State, StatesGroup, StateFilter
@@ -49,8 +51,16 @@ async def set_phone_form(mess: Message, state: FSMContext, bot: Bot):
 
 @subrouter.message(Form.Phone)
 async def set_city_form(mess: Message, state: FSMContext):
-    await state.update_data({"phone": mess.contact.phone_number})
-    await state.set_state(Form.CheckMessage)
+    try:
+        await state.update_data({"phone": mess.contact.phone_number})
+    except AttributeError:
+        regex = re.compile("\+?\d[\( -]?\d{3}[\) -]?\d{3}[ -]?\d{2}[ -]?\d{2}")
+        numbers = re.findall(regex, mess.text)
+        phone = [] == numbers
+        if phone:
+            await mess.answer("Я не смог распознать номер телефона. Пожалуйста нажмите кнопку \"Поделиться контактом\" "
+                              "или отправьте номер по шаблону: 8-000-123-45-67")
+            return
     await mess.answer("Телефон сохранен!", reply_markup=ReplyKeyboardRemove())
     msg = await mess.answer("Укажите свой город", reply_markup=kbi.cancel())
     await state.update_data({"del": msg.message_id})
@@ -70,7 +80,8 @@ async def check_form(mess: Message, state: FSMContext, bot: Bot):
                       f"ФИО: {data['fio']}\n"
                       f"Телефон: {data['phone']}\n"
                       f"Город: {data['city']}\n\n"
-                      f"Все верно?", reply_markup=kbi.confirmation())
+                      f"Все верно?", reply_markup=kbi.confirmation(canc_data="start"))
+    await state.set_state(Form.CheckMessage)
 
 
 @subrouter.callback_query(Form.CheckMessage, F.data == "yes")
